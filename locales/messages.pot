@@ -1,0 +1,35 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenHands Swarm Controller\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "OpenHands Endpoint"
+msgstr ""
+
+msgid "LiteLLM Configuration"
+msgstr ""
+
+msgid "Swarm Status"
+msgstr ""
+
+msgid "Task Queue"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Language"
+msgstr ""
+
+msgid "Theme"
+msgstr ""
+
+msgid "Dark"
+msgstr ""
+
+msgid "Light"
+msgstr ""
+
+msgid "System"
+msgstr ""
