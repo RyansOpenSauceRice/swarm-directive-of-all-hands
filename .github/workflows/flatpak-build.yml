@@ -1,0 +1,57 @@
+name: Flatpak Build
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Flatpak
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y flatpak flatpak-builder
+        flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+        
+    - name: Install runtimes
+      run: |
+        flatpak install -y flathub org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08
+        
+    - name: Create build directory
+      run: |
+        mkdir -p build-dir
+        flatpak build-init build-dir com.swarmdirective.SwarmDirective org.freedesktop.Sdk org.freedesktop.Platform 23.08
+        
+    - name: Build Flatpak
+      run: |
+        mkdir -p build-logs
+        BUILD_DATE=$(date +'%Y-%m-%d_%H-%M-%S')
+        DELETE_DATE=$(date -d '+3 days' +'%Y-%m-%d')
+        flatpak-builder --force-clean --repo=repo build-dir flatpak/com.swarmdirective.SwarmDirective.yml > build-logs/build_${BUILD_DATE}.log 2>&1 || \
+        echo "Build failed. Log will be deleted on ${DELETE_DATE}" >> build-logs/build_${BUILD_DATE}.log
+        
+    - name: Upload build logs
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-logs
+        path: build-logs/
+        retention-days: 3
+        
+    - name: Create Flatpak bundle
+      if: success()
+      run: |
+        DATE=$(TZ='America/Chicago' date +'%d-%m-%Y')
+        TIMESTAMP=$(date +'%s')
+        flatpak build-bundle repo swarm-directive-${DATE}-${TIMESTAMP}.flatpak com.swarmdirective.SwarmDirective
+        
+    - name: Upload Flatpak bundle
+      if: success()
+      uses: actions/upload-artifact@v3
+      with:
+        name: flatpak-bundle
+        path: swarm-directive-*.flatpak
