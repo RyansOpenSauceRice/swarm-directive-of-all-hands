@@ -1,0 +1,33 @@
+name: Cleanup Old Build Logs
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at midnight UTC
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Find and remove old logs
+      run: |
+        CURRENT_DATE=$(date +'%Y-%m-%d')
+        find .build-logs -name '*_delete_*' | while read -r file; do
+          DELETE_DATE=$(echo "$file" | grep -oP '(?<=_delete_)\d{4}-\d{2}-\d{2}')
+          if [[ "$DELETE_DATE" < "$CURRENT_DATE" ]]; then
+            echo "Removing expired log: $file (delete date: $DELETE_DATE)"
+            rm "$file"
+          fi
+        done
+        
+    - name: Commit and push changes
+      if: success()
+      run: |
+        git config --global user.name "OpenHands CI"
+        git config --global user.email "ci@openhands.dev"
+        git add .build-logs/
+        git diff-index --quiet HEAD || git commit -m "Cleanup old build logs"
+        git push
