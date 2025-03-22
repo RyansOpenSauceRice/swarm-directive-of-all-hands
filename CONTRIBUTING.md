@@ -15,6 +15,12 @@ We welcome contributions from the community! Here's how you can help:
 - LiteLLM installed
 - Playwright for browser automation
 
+## Build System
+- Flatpak builds are handled automatically via GitHub Actions
+- Failed builds generate logs in `.build-logs/`
+- Logs are automatically cleaned up after 3 days
+- Check the Actions tab for build results
+
 ## Code Style
 - Follow PEP 8 guidelines
 - Use type hints where appropriate
