@@ -35,12 +35,22 @@ jobs:
         flatpak-builder --force-clean --repo=repo build-dir flatpak/com.swarmdirective.SwarmDirective.yml > build-logs/build_${BUILD_DATE}.log 2>&1 || \
         echo "Build failed. Log will be deleted on ${DELETE_DATE}" >> build-logs/build_${BUILD_DATE}.log
         
-    - name: Upload build logs
-      uses: actions/upload-artifact@v3
-      with:
-        name: build-logs
-        path: build-logs/
-        retention-days: 3
+    - name: Store build logs
+      if: failure()
+      run: |
+        mkdir -p .build-logs
+        BUILD_DATE=$(date +'%Y-%m-%d_%H-%M-%S')
+        DELETE_DATE=$(date -d '+3 days' +'%Y-%m-%d')
+        cp build-logs/build_${BUILD_DATE}.log .build-logs/build_${BUILD_DATE}_delete_${DELETE_DATE}.log
+        
+    - name: Commit and push build logs
+      if: failure()
+      run: |
+        git config --global user.name "OpenHands CI"
+        git config --global user.email "ci@openhands.dev"
+        git add .build-logs/
+        git commit -m "Add build log from failed build $(date +'%Y-%m-%d %H:%M:%S')"
+        git push origin HEAD:add-github-actions-workflow
         
     - name: Create Flatpak bundle
       if: success()
