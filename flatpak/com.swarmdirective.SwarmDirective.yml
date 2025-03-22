@@ -1,0 +1,22 @@
+app-id: com.swarmdirective.SwarmDirective
+runtime: org.freedesktop.Platform
+runtime-version: '23.08'
+sdk: org.freedesktop.Sdk
+command: swarm-directive
+finish-args:
+  - --share=ipc
+  - --socket=wayland
+  - --socket=x11
+  - --device=dri
+  - --env=DISPLAY=:0
+  - --env=PYTHONUNBUFFERED=1
+
+modules:
+  - name: swarm-directive
+    buildsystem: simple
+    build-commands:
+      - pip install --prefix=${FLATPAK_DEST} -r requirements.txt
+      - install -Dm755 src/main.py ${FLATPAK_DEST}/bin/swarm-directive
+    sources:
+      - type: dir
+        path: .
