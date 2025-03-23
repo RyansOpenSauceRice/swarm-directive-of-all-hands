@@ -15,6 +15,40 @@ We welcome contributions from the community! Here's how you can help:
 - LiteLLM installed
 - Playwright for browser automation
 
+## Core Components
+
+### OpenHands Client
+- Browser automation interface
+- Command execution
+- Response handling
+
+### Agent Framework
+- Role-based task execution
+- Error handling
+- Resource management
+
+### Task Queue
+- Priority-based task management
+- Status tracking
+- Automatic retries
+
+### Monitoring System
+- Real-time logging
+- Performance metrics
+- System health checks
+
+## Configuration
+- Copy `.env.example` to `.env`
+- Set `OPENHANDS_URL` to your instance
+- Add API key if required
+- Environment variables take precedence
+
+## Build System
+- Flatpak builds are handled automatically via GitHub Actions
+- Failed builds generate logs in `.build-logs/`
+- Logs are automatically cleaned up after 3 days
+- Check the Actions tab for build results
+
 ## Code Style
 - Follow PEP 8 guidelines
 - Use type hints where appropriate

@@ -1,0 +1,67 @@
+name: Flatpak Build
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Flatpak
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y flatpak flatpak-builder
+        flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+        
+    - name: Install runtimes
+      run: |
+        flatpak install -y flathub org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08
+        
+    - name: Create build directory
+      run: |
+        mkdir -p build-dir
+        flatpak build-init build-dir com.swarmdirective.SwarmDirective org.freedesktop.Sdk org.freedesktop.Platform 23.08
+        
+    - name: Build Flatpak
+      run: |
+        mkdir -p build-logs
+        BUILD_DATE=$(date +'%Y-%m-%d_%H-%M-%S')
+        DELETE_DATE=$(date -d '+3 days' +'%Y-%m-%d')
+        flatpak-builder --force-clean --repo=repo build-dir flatpak/com.swarmdirective.SwarmDirective.yml > build-logs/build_${BUILD_DATE}.log 2>&1 || \
+        echo "Build failed. Log will be deleted on ${DELETE_DATE}" >> build-logs/build_${BUILD_DATE}.log
+        
+    - name: Store build logs
+      if: failure()
+      run: |
+        mkdir -p .build-logs
+        BUILD_DATE=$(date +'%Y-%m-%d_%H-%M-%S')
+        DELETE_DATE=$(date -d '+3 days' +'%Y-%m-%d')
+        cp build-logs/build_${BUILD_DATE}.log .build-logs/build_${BUILD_DATE}_delete_${DELETE_DATE}.log
+        
+    - name: Commit and push build logs
+      if: failure()
+      run: |
+        git config --global user.name "OpenHands CI"
+        git config --global user.email "ci@openhands.dev"
+        git add .build-logs/
+        git commit -m "Add build log from failed build $(date +'%Y-%m-%d %H:%M:%S')"
+        git push origin HEAD:add-github-actions-workflow
+        
+    - name: Create Flatpak bundle
+      if: success()
+      run: |
+        DATE=$(TZ='America/Chicago' date +'%d-%m-%Y')
+        TIMESTAMP=$(date +'%s')
+        flatpak build-bundle repo swarm-directive-${DATE}-${TIMESTAMP}.flatpak com.swarmdirective.SwarmDirective
+        
+    - name: Upload Flatpak bundle
+      if: success()
+      uses: actions/upload-artifact@v3
+      with:
+        name: flatpak-bundle
+        path: swarm-directive-*.flatpak
