@@ -15,6 +15,12 @@ We welcome contributions from the community! Here's how you can help:
 - LiteLLM installed
 - Playwright for browser automation
 
+## Configuration
+- Copy `.env.example` to `.env`
+- Set `OPENHANDS_URL` to your instance
+- Add API key if required
+- Environment variables take precedence
+
 ## Build System
 - Flatpak builds are handled automatically via GitHub Actions
 - Failed builds generate logs in `.build-logs/`
