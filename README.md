@@ -1,6 +1,6 @@
 # OpenHands Swarm Controller
 
-![Project Status](https://img.shields.io/badge/status-active-brightgreen)
+![Project Status](https://img.shields.io/badge/status-canceled-red)
 ![Python Version](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Encoding](https://img.shields.io/badge/encoding-UTF--8-green)
 
